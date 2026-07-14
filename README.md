@@ -9,7 +9,7 @@ A static, browser-based learning tool for undergraduate biochemistry. It helps s
 - Make predictions before explanations are revealed, then follow an observe → infer → predict → transfer reasoning chain.
 - Compare chemically related substitutions and explain why they are conservative or nonconservative.
 - Transfer side-chain chemistry to chromatography, electrophoresis, metabolism, protein folding, and enzyme mechanisms.
-- Practice all 20 common amino acids through Explore, Sort, Compare, Apply, and Review modes.
+- Practice all 20 common amino acids through Explore, Structure, Sort, Compare, Apply, and Review modes.
 
 ## Files
 
@@ -17,6 +17,7 @@ A static, browser-based learning tool for undergraduate biochemistry. It helps s
 - `styles.css` — responsive academic visual design and focus states
 - `script.js` — activities, feedback, and local progress
 - `data/amino-acids.js` — editable structured content for all 20 amino acids
+- `data/structure-learning.js` — chirality, structural families, representations, modifications, and structure-based scenarios
 
 ## Run locally
 
@@ -50,6 +51,7 @@ Correctness never relies on color alone: submitted options retain pale shading, 
 - **Compare** makes students decide how a related substitution changes hydration, charge, and conformational tendency.
 - **Apply** transfers side-chain chemistry to protein folding, enzyme mechanisms, acid–base catalysis, molecular recognition, metabolism, chromatography, electrophoresis, membranes, and spectroscopy.
 - **Review** consolidates chemical capabilities, unusual residues, missed concepts, and optional abbreviation retrieval.
+- **Structure** teaches the common backbone, Greek-letter carbon naming, chirality, L/D relationships, drawing conventions, and recurring side-chain motifs before students memorize residue names.
 
 ### Suggested 10–15 minute workflow
 
@@ -58,6 +60,16 @@ Correctness never relies on color alone: submitted options retain pale shading, 
 3. Compare one chemically related pair.
 4. Complete five Apply scenarios.
 5. Review missed concepts and one high-value exception.
+
+For the stereochemistry and structural-family sequence used with the amino-acid course slides:
+
+1. Complete Common Backbone.
+2. Complete one Chirality activity.
+3. Explore one structural family.
+4. Complete a Structure-to-Behavior sorting round.
+5. Compare one related pair.
+6. Complete three application questions.
+7. Review the structure–property map.
 
 ### Use with a prerecorded lecture
 
@@ -77,6 +89,10 @@ The browser stores attempts, supported answers, missed concepts, and encountered
 Each object in `data/amino-acids.js` contains core chemistry plus extended fields for textbook category, water behavior, chemical capabilities, protein-structure roles, mechanism roles, accepted classifications, hints, biochemical significance, and nuanced notes. Add or revise classifications there rather than in the interface.
 
 Application scenarios live in the `scenarios` array in `script.js`. Each scenario contains a topic, prompt, choices, correct-answer index, a three-step reasoning explanation, and a concept label used by progress tracking.
+
+Stereochemistry, representation matching, motif identification, structural-family prompts, modified amino acids, and the additional structure-based application scenarios live in `data/structure-learning.js`. The file also extends every standard amino-acid record with chirality, branching, ring, family, structural-relative, Greek-carbon, modification, and structure→property fields. Edit this data rather than duplicating content in interface functions.
+
+Structural-family comparisons prepare students to recognize conservative and nonconservative substitutions before enzyme-mechanism and metabolism units. Chirality activities emphasize reasoning from four substituents, not mnemonic recall; glycine is explicitly handled as the achiral exception. The L/D scaffold is a recognition aid and does not replace formal stereochemical analysis.
 
 ## Future enhancements
 

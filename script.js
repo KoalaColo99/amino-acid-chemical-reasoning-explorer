@@ -54,6 +54,7 @@
   function significanceMarkup(item) {
     return `<section id="significance-panel" class="significance-panel" ${$('#significance')?.checked ? '' : 'hidden'} aria-labelledby="significance-title"><h4 id="significance-title">Why This Amino Acid Matters</h4><ul>${item.biochemicalSignificance.map((point) => `<li>${point}</li>`).join('')}</ul></section>`;
   }
+  function structuralReasoningMarkup(item){return `<section id="structural-reasoning-panel" class="significance-panel structure-property" ${$('#structural-reasoning')?.checked?'':'hidden'}><h4>Structure → Property</h4><ol>${item.structurePropertyExplanation.map(point=>`<li>${point}</li>`).join('')}</ol><p><b>Chirality:</b> ${item.chiralityReason}</p></section>`}
 
   if (!aminoAcids.length) {
     $('#workspace').innerHTML = '<div class="card scenario"><h2>Content unavailable</h2><p>The structured amino-acid data did not load. Keep <code>data/amino-acids.js</code> beside this page and reload.</p></div>';
@@ -86,6 +87,25 @@
     });
   });
   $$('.mode').forEach((panel) => panel.tabIndex = -1);
+
+  const structureLearning = window.STRUCTURE_LEARNING;
+  let structureSection = 'backbone';
+  function structureNav(){return `<div class="structure-subnav" role="tablist" aria-label="Structure topics">${[['backbone','Common Backbone'],['chirality','Chirality'],['representations','Structural Representations'],['architecture','Side-Chain Architecture']].map(([key,label])=>`<button class="secondary structure-topic ${structureSection===key?'active':''}" data-topic="${key}" role="tab" aria-selected="${structureSection===key}">${label}</button>`).join('')}</div>`}
+  function bindStructureAnswers(root, selector, answer, explanation){$$(selector,root).forEach(button=>button.addEventListener('click',()=>{clearAnswerStates(root);const ok=button.dataset.answer===answer;markAnswer(button,ok?'correct':'incorrect',ok?'Correct':'Not quite');$('.structure-live',root).innerHTML=`<b>${ok?'✓ Correct':'✕ Not quite'}.</b> ${explanation}`;$('.structure-live',root).focus();record(ok,'structure: '+structureSection)}))}
+  function renderStructure(){
+    const app=$('#structure-app');
+    let body='';
+    if(structureSection==='backbone')body=`<div class="learning-grid"><article class="card lesson-card"><h3>1. Label the shared α-amino-acid backbone</h3><div class="generic-aa" role="img" aria-label="Generic alpha amino acid: central alpha carbon bonded to amino group, carboxyl group, hydrogen, and variable R group"><span>H₃N⁺</span><span>— Cα —</span><span>COO⁻</span><small>H and R also attach to Cα</small></div><p>Select the label requested: <b>variable portion that changes among amino acids</b>.</p><div class="choices">${structureLearning.backboneParts.map(([key,label])=>`<button class="choice" data-answer="${key}">${label}</button>`).join('')}</div><div class="structure-live feedback-region" tabindex="-1" aria-live="polite"></div></article><article class="card lesson-card"><h3>2. Greek-letter carbon naming</h3><p>Greek names proceed outward from Cα, unlike numerical naming common in organic chemistry.</p><label class="field">Example<select id="greek-example">${Object.keys(structureLearning.greekExamples).map(n=>`<option>${n}</option>`).join('')}</select></label><div id="greek-activity"></div></article></div><div class="lesson-summary">The backbone is shared. Most useful chemical variation comes from the side chain.</div>`;
+    if(structureSection==='chirality')body=`<div class="learning-grid"><article class="card lesson-card"><h3>Is the α-carbon chiral?</h3><p>A chiral Cα needs four different substituents. Choose an example, inspect its R group, then predict.</p><label class="field">Amino acid<select id="chiral-example">${structureLearning.chiralityQuestions.map(n=>`<option>${n}</option>`).join('')}</select></label><div id="chiral-prompt"></div></article><article class="card lesson-card"><h3>L versus D</h3><div class="mirror-pair" role="img" aria-label="Paired Fischer projections with carboxyl group at top, R group at bottom, and amino groups on opposite sides"><div>COO⁻<br>H—C—NH₃⁺<br>R<br><b>L form</b></div><div class="mirror-line" aria-hidden="true">│ mirror │</div><div>COO⁻<br>⁺H₃N—C—H<br>R<br><b>D form</b></div></div><p>These structures have the same connectivity but opposite configuration at Cα. What is their relationship?</p><div class="choices"><button class="choice stereo-answer" data-answer="enantiomers">Nonsuperimposable enantiomers</button><button class="choice stereo-answer" data-answer="identical">Identical structures</button><button class="choice stereo-answer" data-answer="constitutional">Constitutional isomers</button></div><details><summary>Optional orientation scaffold</summary><p>Orient H toward the viewer and examine COO⁻ → R → NH₃⁺ as a recognition aid. This mnemonic does not replace formal stereochemical reasoning.</p></details><details><summary>Biological significance</summary><p>Ribosomal proteins use almost exclusively L-amino acids. D-amino acids occur in settings such as bacterial cell walls and specialized peptides. Glycine is neither L nor D because it is achiral.</p></details><div class="structure-live feedback-region" tabindex="-1" aria-live="polite"></div></article></div>`;
+    if(structureSection==='representations')body=`<article class="card lesson-card"><h3>Recognize chemistry across drawing conventions</h3><div class="convention-grid"><div><b>Fischer projection</b><p>Horizontal bonds project toward the viewer; vertical bonds project away. Relevant atoms are explicit.</p></div><div><b>Wedge-and-dash</b><p>Solid wedge projects toward; dashed wedge projects away; straight lines lie approximately in the plane.</p></div><div><b>Condensed / side-chain card</b><p>Connectivity is emphasized while some three-dimensional information is omitted.</p></div></div><label class="field">Drawing pair<select id="representation-pair">${structureLearning.representations.map((x,i)=>`<option value="${i}">${x.prompt}</option>`).join('')}</select></label><div class="choices representation-choices">${['same stereoisomer','opposite stereoisomers','same amino acid shown using different conventions','different amino acids'].map(x=>`<button class="choice" data-answer="${x}">${x}</button>`).join('')}</div><div class="structure-live feedback-region" tabindex="-1" aria-live="polite"></div></article>`;
+    if(structureSection==='architecture')body=`<article class="card lesson-card"><h3>Connect motifs to behavior</h3><p>Select a motif to examine an amino-acid example and its transferable chemistry.</p><div class="motif-grid">${structureLearning.motifs.map(([motif,example,behavior])=>`<button class="motif-card" data-motif="${motif}"><b>${motif}</b><span>${example}</span><small>${behavior}</small></button>`).join('')}</div><div class="structure-live feedback-region" tabindex="-1" aria-live="polite">Hydrocarbons tend to be hydrophobic; heteroatoms and ionizable groups enable selective interactions and reactions.</div></article>`;
+    app.innerHTML=structureNav()+body;
+    $$('.structure-topic',app).forEach(b=>b.addEventListener('click',()=>{structureSection=b.dataset.topic;renderStructure()}));
+    if(structureSection==='backbone'){bindStructureAnswers(app,'.lesson-card:first-child .choice','r-group','The R group is the variable side chain; amino, carboxyl, H, and Cα form the shared framework.');const renderGreek=()=>{const n=$('#greek-example').value,labels=structureLearning.greekExamples[n];$('#greek-activity').innerHTML=`<p><b>${n}</b>: choose the carbon immediately after Cα.</p><div class="choices">${labels.map(x=>`<button class="choice greek-answer" data-answer="${x}">${x}-carbon</button>`).join('')}</div><div class="structure-live feedback-region" tabindex="-1" aria-live="polite"></div>`;bindStructureAnswers($('#greek-activity'),'.greek-answer','β',`Cβ is the first side-chain carbon. This example continues only through ${labels[labels.length-1]}.`) };$('#greek-example').onchange=renderGreek;renderGreek()}
+    if(structureSection==='chirality'){const renderChiral=()=>{const a=findAminoAcid($('#chiral-example').value);$('#chiral-prompt').innerHTML=`<div class="structure"><small>side chain</small>${a.structure}</div><div class="choices"><button class="choice chiral-answer" data-answer="true">Chiral</button><button class="choice chiral-answer" data-answer="false">Achiral</button></div><div class="structure-live feedback-region" tabindex="-1" aria-live="polite"></div>`;bindStructureAnswers($('#chiral-prompt'),'.chiral-answer',String(a.isChiral),a.chiralityReason)};$('#chiral-example').onchange=renderChiral;renderChiral();bindStructureAnswers(app,'.stereo-answer','enantiomers','Mirror-image L and D forms are nonsuperimposable enantiomers. Proteins use the L form; the drawing convention does not change that identity.')}
+    if(structureSection==='representations'){const bindRep=()=>{const x=structureLearning.representations[Number($('#representation-pair').value)];bindStructureAnswers(app,'.representation-choices .choice',x.answer,x.reason)};$('#representation-pair').onchange=()=>{clearAnswerStates(app);$('.structure-live',app).textContent='';bindRep()};bindRep()}
+    if(structureSection==='architecture')$$('.motif-card',app).forEach(b=>b.addEventListener('click',()=>{const x=structureLearning.motifs.find(m=>m[0]===b.dataset.motif);clearAnswerStates(app);markAnswer(b,'correct','Selected');$('.structure-live',app).innerHTML=`<b>${x[1]}</b> contains ${x[0]} → ${x[2]}.`;$('.structure-live',app).focus()}));
+  }
 
   const predictionQuestions = [
     { id: 'class', question: 'What is its dominant behavior near pH 7?', options: ['Hydrophobic', 'Polar neutral', 'Positive', 'Negative', 'Context dependent'] },
@@ -135,7 +155,7 @@
           <div class="structure"><small>side-chain evidence</small>${item.structure}</div>
           <div class="evidence-box"><b>Start here:</b> ${item.functionalGroup}. Do not reveal the classification yet.</div>
           <label class="field amino-picker">Choose an amino acid<select id="explore-select">${aminoAcids.map((acid) => `<option value="${acid.name}" ${acid === item ? 'selected' : ''}>${acid.name} (${acid.three}, ${acid.one})</option>`).join('')}</select></label>
-          ${significanceMarkup(item)}
+          ${significanceMarkup(item)}${structuralReasoningMarkup(item)}
         </article>
         <article class="card predict">
           <h3>Predict before revealing</h3>
@@ -145,6 +165,7 @@
           <div id="explore-feedback" class="feedback-region" aria-live="polite"></div>
         </article>
       </div>
+      <section class="card family-explorer"><h3>Explore a structural family</h3><label class="field">Family<select id="family-select">${structureLearning.families.map(([name])=>`<option>${name}</option>`).join('')}</select></label><div id="family-members"></div></section>
       <div class="nav-row"><button id="previous-aa" class="secondary">← Previous</button><button id="related-aa" class="secondary">Compare a related amino acid</button><button id="next-aa" class="primary">Next →</button></div>`;
 
     $$('.choices').forEach((group) => $$('button', group).forEach((button) => button.addEventListener('click', () => {
@@ -159,6 +180,7 @@
       renderCompare(pair[0], pair[1]);
       activateMode($('#tab-compare'));
     });
+    const renderFamily=()=>{const f=structureLearning.families.find(([name])=>name===$('#family-select').value);$('#family-members').innerHTML=`<div class="family-member-grid">${f[1].map(name=>{const x=findAminoAcid(name);return `<article><b>${x.name}</b><span>${x.structure}</span><small>${x.functionalGroup}; ${x.charge}</small></article>`}).join('')}</div><div class="guided-family"><b>Ask:</b> What structure is shared? What differs? How do polarity, charge, reactivity, and substitution consequences change?</div>`};$('#family-select').onchange=renderFamily;renderFamily();
     $('#reveal').addEventListener('click', () => revealExplore(item));
   }
 
@@ -192,13 +214,17 @@
     const panel = $('#significance-panel');
     if (panel) panel.hidden = !$('#significance').checked;
   });
+  $('#structural-reasoning').addEventListener('change',()=>{const panel=$('#structural-reasoning-panel');if(panel)panel.hidden=!$('#structural-reasoning').checked});
 
   const sortSchemas = {
     textbook:{label:'A · Textbook classification',categories:['nonpolar aliphatic','aromatic','polar uncharged','positively charged','negatively charged']},
     water:{label:'B · Behavior in water',categories:['strongly hydrophobic','mixed or context dependent','hydrophilic but uncharged','hydrophilic and charged']},
     capabilities:{label:'C · Chemical capabilities',categories:['can form hydrogen bonds','can carry positive charge','can carry negative charge','has an ionizable side chain','can participate in acid-base catalysis','contains an aromatic ring','contains sulfur','can form a covalent cross-link','may be phosphorylated','contributes to UV absorbance near 280 nm','especially flexible','conformationally restrictive']},
     structure:{label:'D · Protein structure roles',categories:['likely to appear in a hydrophobic protein core','likely to appear on a water-exposed surface','likely to form ionic interactions','likely to contribute hydrogen bonds','likely to alter backbone flexibility','likely to stabilize extracellular proteins through disulfide bonds','likely to occur in membrane-spanning regions']},
-    mechanisms:{label:'E · Enzyme and mechanism roles',categories:['possible proton donor or acceptor','possible nucleophile','possible electrostatic stabilizer','possible metal-ion ligand','possible substrate-recognition residue','primarily structural rather than chemically reactive']}
+    mechanisms:{label:'E · Enzyme and mechanism roles',categories:['possible proton donor or acceptor','possible nucleophile','possible electrostatic stabilizer','possible metal-ion ligand','possible substrate-recognition residue','primarily structural rather than chemically reactive']},
+    structuralFeatures:{label:'F · Structural features',categories:['branched side chain','aromatic ring','hydroxyl group','sulfur-containing','amide-containing','additional carboxylate','additional basic nitrogen','cyclic side chain','smallest side chain','achiral']},
+    relatives:{label:'G · Chemical relatives',categories:['acidic residue and corresponding amide','hydrophobic residue and hydroxyl-containing relative','sulfur analogs','aromatic family','branched-chain family','small or conformationally unusual residues']},
+    structureBehavior:{label:'H · Structure to behavior',categories:['hydrophobic','hydrophilic or context dependent','charged near pH 7','usually uncharged near pH 7','hydrogen-bond capable','likely ionizable','aromatic','aliphatic or nonaromatic','structurally flexible','structurally restrictive','potentially catalytic','primarily structural']}
   };
   let sortChallenge = 'textbook';
   let sortFormat = 'guided';
@@ -255,7 +281,7 @@
       <section class="card category-panel" aria-labelledby="category-panel-title"><p class="kicker">${schema.label}</p><h3 id="category-panel-title">Classify ${active.name}</h3><div class="active-structure"><span>${active.structure}</span><small>${active.functionalGroup}</small></div><div class="category-tags">${schema.categories.map((category) => `<button class="category-tag" data-category="${category}" aria-pressed="${sortAssignments[active.name]?.includes(category) || false}">${category}</button>`).join('')}</div><div id="sort-status" class="status" tabindex="-1" aria-live="polite">Select all categories that apply, then check your work.</div><button id="sort-explain" class="text-button" ${sortAttempts[active.name] >= 2 ? '' : 'hidden'}>Explain this amino acid</button></section>
     </div>`;
 
-    $('#sort-challenge').addEventListener('change', (event) => { sortChallenge = event.target.value; resetSortWorkspace(false); });
+    $('#sort-challenge').addEventListener('change', (event) => { sortChallenge = event.target.value; if(sortChallenge==='structureBehavior')sortHideNames=true; resetSortWorkspace(false); });
     $$('input[name="sort-format"]').forEach((radio) => radio.addEventListener('change', (event) => { sortFormat = event.target.value; resetSortWorkspace(true); }));
     $('#sort-display').addEventListener('change', (event) => { sortDisplay = event.target.value; renderSort(); });
     $('#sort-hide-names').addEventListener('change', (event) => { sortHideNames = event.target.checked; renderSort(); });
@@ -304,9 +330,11 @@
   $('#reset-sort').addEventListener('click', () => resetSortWorkspace(false));
 
   const comparisonPairs = [
-    ['Serine', 'Cysteine'], ['Phenylalanine', 'Tyrosine'], ['Aspartate', 'Asparagine'], ['Glutamate', 'Glutamine'],
-    ['Lysine', 'Arginine'], ['Glycine', 'Proline'], ['Leucine', 'Isoleucine'], ['Histidine', 'Lysine'], ['Tryptophan', 'Tyrosine']
+    ['Glycine','Alanine'],['Glycine','Proline'],['Alanine','Serine'],['Valine','Threonine'],['Leucine','Isoleucine'],['Methionine','Cysteine'],
+    ['Phenylalanine','Tyrosine'],['Phenylalanine','Tryptophan'],['Serine','Cysteine'],['Aspartate','Asparagine'],['Glutamate','Glutamine'],
+    ['Lysine','Arginine'],['Lysine','Histidine'],['Aspartate','Glutamate'],['Asparagine','Glutamine'],['Tryptophan','Tyrosine']
   ];
+  const comparisonPrompts={'Aspartate|Asparagine':'What follows when a carboxylate is replaced by a carboxamide?','Phenylalanine|Tyrosine':'What new chemistry follows from adding one hydroxyl?','Glycine|Proline':'How would these residues differently affect a flexible loop?','Methionine|Cysteine':'How does thioether sulfur differ from thiol sulfur?','Valine|Threonine':'What changes when a hydroxyl is added to a β-branched side chain?'};
   function comparisonAnswer(first, second, question) {
     if (question === 'water') {
       const score = (item) => {
@@ -340,7 +368,7 @@
       <div class="preset-row">${comparisonPairs.map((pair) => `<button class="preset" data-first="${pair[0]}" data-second="${pair[1]}">${pair[0]} ↔ ${pair[1]}</button>`).join('')}</div>
       <div class="compare-controls"><label class="field">First amino acid<select id="compare-first">${aminoAcids.map((item) => `<option ${item === first ? 'selected' : ''}>${item.name}</option>`).join('')}</select></label><span aria-hidden="true">↔</span><label class="field">Second amino acid<select id="compare-second">${aminoAcids.map((item) => `<option ${item === second ? 'selected' : ''}>${item.name}</option>`).join('')}</select></label></div>
       <div class="compare-grid">${compactCard(first)}${compactCard(second)}</div>
-      <article class="card prompt-box"><h3>Make the substitution prediction</h3>
+      <article class="card prompt-box"><h3>Make the substitution prediction</h3><p class="comparison-application"><b>Structure question:</b> ${comparisonPrompts[`${first.name}|${second.name}`]||comparisonPrompts[`${second.name}|${first.name}`]||`Which visible structural difference most changes the chemistry of ${first.name} and ${second.name}?`}</p>
         <fieldset class="comparison-question"><legend>Which side chain is more likely to interact strongly with water?</legend>${[first.name, second.name, 'Similar'].map((choice) => `<label><input type="radio" name="compare-water" value="${choice}"> ${choice}</label>`).join('')}</fieldset>
         <fieldset class="comparison-question"><legend>Does the substitution change charge near pH 7?</legend><label><input type="radio" name="compare-charge" value="Different"> Yes</label><label><input type="radio" name="compare-charge" value="Similar"> No</label></fieldset>
         <fieldset class="comparison-question"><legend>Does it substantially change conformational tendency?</legend><label><input type="radio" name="compare-shape" value="Different"> Yes</label><label><input type="radio" name="compare-shape" value="Similar"> No</label></fieldset>
@@ -383,7 +411,7 @@
     ['Reversed-phase chromatography', 'Which peptide is generally retained longer on a nonpolar stationary phase?', ['A peptide enriched in Leu, Ile, and Phe', 'A peptide enriched in Asp and Lys', 'A peptide enriched in Asn and Gln'], 0, ['Reversed-phase media are nonpolar.', 'Leu, Ile, and Phe add hydrophobic surface.', 'Greater hydrophobic contact generally increases retention.'], 'chromatography'],
     ['Acid–base catalysis', 'Why can cysteine be more nucleophilic than serine in an active site?', ['Thiolate is polarizable and can form at accessible pH', 'Sulfur is always positively charged', 'Serine cannot hydrogen-bond'], 0, ['A catalytic base can deprotonate cysteine.', 'The resulting thiolate is polarizable and strongly nucleophilic.', 'Local pKa shifts—not sulfur alone—control reactivity.'], 'cysteine chemistry'],
     ['Spectroscopy', 'Which substitution most strongly lowers A₂₈₀, all else equal?', ['Trp to Ala', 'Leu to Ile', 'Asp to Asn'], 0, ['Tryptophan has the strongest side-chain absorbance near 280 nm.', 'Alanine has essentially none.', 'Removing Trp therefore has a much larger direct effect than the other substitutions.'], 'tryptophan spectroscopy']
-  ];
+  ].concat(structureLearning.applicationScenarios);
   function startApplicationSet() { applicationSet = shuffled(scenarios).slice(0, 5); applicationIndex = 0; renderApplication(); }
   function renderApplication() {
     const scenario = applicationSet[applicationIndex];
@@ -426,8 +454,13 @@
         ['Cysteine', 'Thiol can become nucleophilic thiolate; oxidation can form disulfides.'], ['Histidine', 'Imidazole pKa is near biological pH and shifts with environment.'],
         ['Tyrosine', 'Aromatic yet polar; phenol can H-bond, ionize, and be phosphorylated.'], ['Tryptophan', 'Bulky amphipathic indole; strongest common contributor to A₂₈₀.']
       ].map(([name, text]) => `<article class="special-item"><b>${name}</b><br>${text}</article>`).join('')}</div></section>
+      <section class="review-section"><h3>Structure map</h3><div class="capability-grid">${[['Branched',['Val','Leu','Ile','Thr']],['Aromatic',['Phe','Tyr','Trp','His']],['Sulfur',['Met','Cys']],['Hydroxyl',['Ser','Thr','Tyr']],['Amide',['Asn','Gln']],['Acidic / basic',['Asp','Glu','Lys','Arg','His']],['Flexible',['Gly']],['Restrictive',['Pro']]].map(([k,v])=>`<article class="card capability"><h3>${k}</h3>${v.map(x=>`<span class="pill">${x}</span>`).join('')}</article>`).join('')}</div></section>
+      <section class="review-section"><h3>Structural relatives map</h3><div class="relative-map">${[['Ala','Ser','add hydroxyl'],['Val','Thr','add hydroxyl'],['Phe','Tyr','add hydroxyl'],['Ser','Cys','replace hydroxyl with thiol'],['Asp','Asn','replace carboxylate with amide'],['Glu','Gln','replace carboxylate with amide'],['Asp','Glu','add one methylene']].map(([a,b,d])=>`<div><b>${a}</b><span>→ ${d} →</span><b>${b}</b></div>`).join('')}</div></section>
+      <section class="card chirality-review"><h3>Chirality review</h3><ul><li>Most standard amino acids have a chiral Cα.</li><li>Glycine is achiral because Cα bears two hydrogens.</li><li>Ribosomal proteins use L-amino acids.</li><li>Enantiomers are nonsuperimposable mirror images.</li></ul><button id="chirality-practice" class="secondary">Practice one chirality prediction</button><div id="chirality-review-area" aria-live="polite"></div></section>
+      <section class="review-section beyond"><h3>Beyond the Standard 20</h3><p>Modification and specialized metabolism expand chemical function. These are not members of the main set of 20.</p><div class="special-grid">${structureLearning.modified.map(([name,type,text])=>`<article class="special-item"><b>${name}</b><small>${type}</small><p>${text}</p></article>`).join('')}</div></section>
       <section class="card abbrev"><h3>One quick retrieval decision</h3><button id="abbreviation-practice" class="secondary">Practice an abbreviation</button><div id="abbreviation-area" aria-live="polite"></div></section>`;
     $('#abbreviation-practice').addEventListener('click', practiceAbbreviation);
+    $('#chirality-practice').addEventListener('click',()=>{const a=aminoAcids[Math.floor(Math.random()*aminoAcids.length)];$('#chirality-review-area').innerHTML=`<p>Is <b>${a.name}</b> chiral at Cα?</p><button class="choice review-chiral" data-answer="true">Chiral</button><button class="choice review-chiral" data-answer="false">Achiral</button>`;$$('.review-chiral').forEach(b=>b.addEventListener('click',()=>{const ok=b.dataset.answer===String(a.isChiral);clearAnswerStates($('#chirality-review-area'));markAnswer(b,ok?'correct':'incorrect',ok?'Correct':'Not quite');$('#chirality-review-area').insertAdjacentHTML('beforeend',`<p>${a.chiralityReason}</p>`);record(ok,'chirality')}))});
   }
   function practiceAbbreviation() {
     const item = aminoAcids[Math.floor(Math.random() * aminoAcids.length)];
@@ -449,6 +482,7 @@
   $('#new-session').addEventListener('click', () => { exploreIndex = 0; sortRound = 0; startApplicationSet(); renderExplore(); activateMode($('#tab-explore')); });
 
   renderExplore();
+  renderStructure();
   renderSort();
   renderCompare();
   startApplicationSet();
