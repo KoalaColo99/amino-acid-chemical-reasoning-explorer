@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amino Acid Chemical Reasoning Explorer</title>
+  <meta name="description" content="Use amino-acid structure to predict chemical behavior and biochemical function.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to learning activity</a>
+  <header class="site-header">
+    <div class="eyebrow">BIOCHEMISTRY · STRUCTURE → FUNCTION</div>
+    <h1>Amino Acid Chemical Reasoning Explorer</h1>
+    <p class="subtitle">Use structure to predict chemical behavior, biological interactions, and biochemical function.</p>
+    <p class="intro">Start with the side chain. Predict its interactions, ionization, and reactivity—then test your reasoning.</p>
+    <div class="question">What chemistry can this amino acid perform?</div>
+  </header>
+  <nav class="mode-nav" aria-label="Learning modes" role="tablist">
+    <button id="tab-explore" class="tab active" data-mode="explore" role="tab" aria-controls="explore" aria-selected="true" tabindex="0">01 <span>Explore</span></button>
+    <button id="tab-sort" class="tab" data-mode="sort" role="tab" aria-controls="sort" aria-selected="false" tabindex="-1">02 <span>Sort</span></button>
+    <button id="tab-compare" class="tab" data-mode="compare" role="tab" aria-controls="compare" aria-selected="false" tabindex="-1">03 <span>Compare</span></button>
+    <button id="tab-apply" class="tab" data-mode="apply" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">04 <span>Apply</span></button>
+    <button id="tab-review" class="tab" data-mode="review" role="tab" aria-controls="review" aria-selected="false" tabindex="-1">05 <span>Review</span></button>
+  </nav>
+  <main id="workspace" tabindex="-1">
+    <section id="explore" class="mode active" role="tabpanel" aria-labelledby="tab-explore"><div class="section-heading"><div><p class="kicker">Mode 01</p><h2>Explore from structure</h2></div><label class="toggle"><input id="significance" type="checkbox"> Show biochemical significance</label></div><p class="recurring-prompt">What chemistry can this side chain perform?</p><div id="explore-app"></div></section>
+    <section id="sort" class="mode" role="tabpanel" aria-labelledby="tab-sort" hidden><div class="section-heading"><div><p class="kicker">Mode 02</p><h2>Sort by chemical evidence</h2></div><div class="actions"><button id="new-sort" class="secondary">New round</button><button id="reset-sort" class="secondary">Reset</button></div></div><p class="recurring-prompt">What chemistry can this side chain perform?</p><p class="instruction">Choose a category, then justify it from the functional group.</p><div id="sort-app"></div></section>
+    <section id="compare" class="mode" role="tabpanel" aria-labelledby="tab-compare" hidden><div class="section-heading"><div><p class="kicker">Mode 03</p><h2>Compare related chemistry</h2></div></div><p class="recurring-prompt">What chemistry can each side chain perform—and what changes in a substitution?</p><div id="compare-app"></div></section>
+    <section id="apply" class="mode" role="tabpanel" aria-labelledby="tab-apply" hidden><div class="section-heading"><div><p class="kicker">Mode 04</p><h2>Apply chemistry in context</h2></div><button id="new-apply" class="secondary">New five-question set</button></div><p class="recurring-prompt">What chemistry can this side chain perform?</p><div id="apply-app"></div></section>
+    <section id="review" class="mode" role="tabpanel" aria-labelledby="tab-review" hidden><div class="section-heading"><div><p class="kicker">Mode 05</p><h2>Review transferable capabilities</h2></div><div class="actions"><button id="missed" class="secondary">Review missed concepts</button><button id="reset-progress" class="danger">Reset progress</button></div></div><p class="recurring-prompt">What chemistry can this side chain perform?</p><div id="review-app"></div></section>
+  </main>
+  <footer><p>Progress stays on this device and is never transmitted.</p><button id="new-session" class="text-button">Start New Session</button></footer>
+  <noscript><div class="noscript">This explorer needs JavaScript to run. The amino-acid content is stored separately in <code>data/amino-acids.js</code>.</div></noscript>
+  <script src="data/amino-acids.js"></script><script src="script.js"></script>
+</body>
+</html>
