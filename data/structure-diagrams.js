@@ -1,0 +1,30 @@
+(function(){
+'use strict';
+const D={
+Glycine:['H','hydrogen','achiral; minimal steric bulk','The glycine side chain is hydrogen. The alpha carbon therefore has two hydrogens and is achiral.','hydrocarbon'],
+Alanine:['CH₃','methyl hydrocarbon','small and nonpolar','The alanine side chain is a methyl group: CH3.','hydrocarbon'],
+Valine:['CH(CH₃)₂','branched hydrocarbon','nonpolar and beta-branched','The valine side chain is CH bonded to two methyl groups.','branched hydrocarbon'],
+Leucine:['CH₂—CH(CH₃)₂','branched hydrocarbon','nonpolar and hydrophobic','The leucine side chain is CH2 bonded to CH bearing two methyl groups.','branched hydrocarbon'],
+Isoleucine:['CH(CH₃)—CH₂—CH₃','branched hydrocarbon','nonpolar and beta-branched','The isoleucine side chain is beta-branched: CH bonded to methyl and ethyl groups.','branched hydrocarbon'],
+Methionine:['CH₂—CH₂—S—CH₃','thioether','neutral, mostly nonpolar, and oxidizable','The methionine side chain contains two methylene groups, sulfur, and a terminal methyl group.','thioether'],
+Proline:['(CH₂)₃ → backbone N','cyclic backbone-linked side chain','restricts backbone rotation','The proline side chain contains three methylene groups and bonds back to the backbone nitrogen, forming a five-membered ring.','proline'],
+Phenylalanine:['CH₂—C₆H₅','phenyl ring','hydrophobic and aromatic','The phenylalanine side chain is a methylene group bonded to a six-membered phenyl ring.','phenyl'],
+Tryptophan:['CH₂—indole','indole','bulky, aromatic, and an H-bond donor','The tryptophan side chain is a methylene group bonded to a fused bicyclic indole containing one nitrogen.','indole'],
+Tyrosine:['CH₂—C₆H₄—OH','phenol','aromatic, polar, and modifiable','The tyrosine side chain is a methylene group bonded to a phenyl ring bearing a hydroxyl group.','phenol'],
+Serine:['CH₂—OH','hydroxyl','polar and capable of hydrogen bonding','The serine side chain is a methylene group bonded to a hydroxyl group: CH2OH.','hydroxyl'],
+Threonine:['CH(OH)—CH₃','hydroxyl; branched hydrocarbon','polar and beta-branched','The threonine side chain is CH bonded to hydroxyl and methyl groups.','hydroxyl'],
+Cysteine:['CH₂—SH','thiol','weakly polar, nucleophilic, and redox-active','The cysteine side chain is a methylene group bonded to a thiol group: CH2SH.','thiol'],
+Asparagine:['CH₂—C(=O)—NH₂','carboxamide','neutral, polar, donor and acceptor','The asparagine side chain is a methylene group bonded to a carboxamide.','amide'],
+Glutamine:['CH₂—CH₂—C(=O)—NH₂','carboxamide','neutral, polar, donor and acceptor','The glutamine side chain contains two methylene groups followed by a carboxamide.','amide'],
+Lysine:['CH₂—CH₂—CH₂—CH₂—NH₃⁺','terminal amino group','positively charged near physiological pH','The lysine side chain contains four methylene groups ending in a protonated amino group.','amino'],
+Arginine:['CH₂—CH₂—CH₂—NH—C(=NH₂⁺)—NH₂','guanidinium','positively charged and strongly binds anions','The arginine side chain contains three methylene groups followed by a guanidinium group with delocalized positive charge.','guanidinium'],
+Histidine:['CH₂—imidazole','imidazole','can gain or lose a proton near physiological pH','The histidine side chain contains a methylene group bonded to a five-membered imidazole ring with two nitrogen atoms.','imidazole'],
+Aspartate:['CH₂—C(=O)—O⁻','carboxylate','negatively charged near physiological pH','The aspartate side chain is a methylene group bonded to a carboxylate.','carboxylate'],
+Glutamate:['CH₂—CH₂—C(=O)—O⁻','carboxylate','negatively charged near physiological pH','The glutamate side chain contains two methylene groups followed by a carboxylate.','carboxylate']
+};
+const groups={textbook:['textbookCategory'],functional:['functionalGroupDiagram'],charge:['charge'],polarity:['polarity'],aromatic:['aromatic'],sulfur:['sulfur'],ionizable:['ionizable'],special:['special']};
+window.AMINO_ACIDS.forEach(a=>{const d=D[a.name];Object.assign(a,{sideChainCondensed:d[0],fullStructuralRepresentation:`H₂N—CH(${d[0]})—COOH`,zwitterionicRepresentation:`⁺H₃N—CH(${d[0]})—COO⁻`,functionalGroupAnnotations:[d[1]],accessibleStructureDescription:d[3],structureInterpretation:d[2],diagramKind:d[4],relevantFunctionalGroupMotifs:[d[1]],chemicalBehaviorLinks:[d[2]],comparisonPairNotes:a.structuralRelatives});a.functionalGroupDiagram=d[1];a.sulfur=/Cysteine|Methionine/.test(a.name)?'contains sulfur':'no sulfur';a.ionizable=a.pKa==='—'?'not ordinarily ionizable':'ionizable side chain';a.special=/Glycine|Proline/.test(a.name)?'structural special case':'standard backbone behavior';});
+window.STRUCTURE_DIAGRAMS={records:D,groupFields:groups,comparisons:[
+['Alanine','Serine','methyl scaffold','hydroxyl replaces H','polarity and H bonding increase; phosphorylation becomes possible'],['Serine','Cysteine','CH₂—XH','oxygen changes to sulfur','thiol nucleophilicity, redox chemistry, and disulfides become possible'],['Phenylalanine','Tyrosine','phenyl ring','phenolic OH is added','polarity, H bonding, and phosphorylation increase'],['Aspartate','Asparagine','CH₂—C(=O)—','carboxylate becomes carboxamide','negative charge is lost; neutral H bonding remains'],['Glutamate','Glutamine','CH₂—CH₂—C(=O)—','carboxylate becomes carboxamide','negative charge is lost; neutral H bonding remains'],['Lysine','Arginine','long hydrocarbon spacer plus basic end group','ammonium changes to guanidinium','both are positive; arginine offers delocalized charge and more directional H bonds'],['Leucine','Isoleucine','four-carbon hydrocarbon','branch point moves','hydrophobicity is retained but packing geometry changes'],['Glycine','Proline','unusual effects on backbone geometry','H becomes a backbone-linked ring','glycine increases flexibility; proline restricts rotation'],['Phenylalanine','Tryptophan','aromatic side chain','phenyl becomes fused indole','tryptophan is bulkier and adds an H-bond donor'],['Histidine','Lysine','nitrogen-containing basic side chain','imidazole versus terminal ammonium','histidine is readily titratable; lysine is usually protonated']
+]};
+}());

@@ -18,6 +18,8 @@ A static, browser-based learning tool for undergraduate biochemistry. It helps s
 - `script.js` — activities, feedback, and local progress
 - `data/amino-acids.js` — editable structured content for all 20 amino acids
 - `data/structure-learning.js` — chirality, structural families, representations, modifications, and structure-based scenarios
+- `data/structure-diagrams.js` — centralized bonded formulas, descriptions, grouping metadata, and comparison notes
+- `structure-enhanced.js` — reusable SVG molecular renderers and the revised Structure learning sequence
 
 ## Run locally
 
